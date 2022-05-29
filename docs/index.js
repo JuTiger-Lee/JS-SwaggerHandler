@@ -4,23 +4,23 @@ const Swagger = require("../handler/swagger");
 const user = require("../docs/api/user/index");
 
 class ApiDocs {
-  apiDocOption;
-  swagger;
+  #apiDocOption;
+  #swagger;
 
   constructor() {
-    this.apiDocOption = {
+    this.#apiDocOption = {
       ...user,
     };
 
-    this.swagger = new Swagger();
+    this.#swagger = new Swagger();
   }
 
   init() {
-    this.swagger.addAPI(this.apiDocOption);
+    this.#swagger.addAPI(this.#apiDocOption);
   }
 
   getSwaggerOption() {
-    const { apiOption, setUpoption } = this.swagger.getOption();
+    const { apiOption, setUpoption } = this.#swagger.getOption();
 
     const specs = swaggerJsDoc(apiOption);
 

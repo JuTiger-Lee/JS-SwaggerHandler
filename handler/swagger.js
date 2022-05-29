@@ -44,15 +44,15 @@ const swaggerSecurityScheme = {
 };
 
 const swaggerComponents = {
-  // JWT_ERROR: {
-  //   description: 'jwt token Error',
-  //   type: 'object',
-  //   properties: {
-  //     401: {
-  //       type: 'Error token 변조 에러',
-  //     },
-  //   },
-  // },
+  JWT_ERROR: {
+    description: "jwt token Error",
+    type: "object",
+    properties: {
+      401: {
+        type: "Error token 변조 에러",
+      },
+    },
+  },
   SERVER_ERROR: {
     description: "SERVER ERROR",
     type: "object",
@@ -76,12 +76,26 @@ const swaggerComponents = {
 };
 
 class Swagger {
-  option;
-  pathOption;
-  setUpOption = {};
+  static #uniqueSwaggerInstance;
+  #paths = [{}];
+  #option = {};
+  #setUpOption = {};
 
+  /**
+   *
+   * @returns {Swagger}
+   */
   constructor() {
-    this.option = {
+    if (!Swagger.#uniqueSwaggerInstance) {
+      this.#init();
+      Swagger.#uniqueSwaggerInstance = this;
+    }
+
+    return Swagger.#uniqueSwaggerInstance;
+  }
+
+  #init() {
+    this.#option = {
       definition: {
         openapi: swaggerOpenApiVersion,
         info: swaggerInfo,
@@ -99,23 +113,35 @@ class Swagger {
       },
       apis: [],
     };
-
-    this.setUpOption = {
+    this.#setUpOption = {
       // search
       explorer: true,
     };
-
-    this.pathOption = {};
   }
 
   addAPI(api) {
-    this.option.definition.paths = api;
+    this.#paths.push(api);
+  }
+
+  #processAPI() {
+    const path = {};
+
+    for (let i = 0; i < this.#paths.length; i += 1) {
+      for (const [key, value] of Object.entries(this.#paths[i])) {
+        path[key] = value;
+      }
+    }
+
+    return path;
   }
 
   getOption() {
+    const path = this.#processAPI();
+    this.#option.definition.paths = path;
+
     return {
-      apiOption: this.option,
-      setUpOption: this.setUpOption,
+      apiOption: this.#option,
+      setUpOption: this.#setUpOption,
     };
   }
 }
